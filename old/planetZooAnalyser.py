@@ -31,17 +31,7 @@ def analyseAnimal(a):
             except:
                 raise Exception("could not find content")
             
-            try:
-                continent = content.find("h3", string="Continents").parent.find("div").text
-            except:
-                raise Exception("could not find continent")
-            
-            try:
-                regions = re.split(
-                    ": |, ", content.find("h3", string="Regions").parent.find("div").text
-                )   
-            except:
-                regions = []
+            addLocation(content)
 
             try:
                 type = "Habitat" if (td_list[2].text.strip() == "Full") else "Exhibit"
@@ -51,17 +41,32 @@ def analyseAnimal(a):
                 "conservation status": conservation,
                 "type": type,
                 "content pack": td_list[3].text.strip(),
-                "continent": continent,
-                "regions": regions,
+               
             }
 
-            if(type == "Habitat"):
+            #addLocation(dict[name],content)
+
+            """ if(type == "Habitat"):
                 analyseHabitatAnimal(dict[name],content)
             else:
-                analyseExhibitAnimal(dict[name],content)
+                analyseExhibitAnimal(dict[name],content) """
         
         except Exception as e:
             print("error in " + name + ": " + str(e))
+
+def addLocation(dict, content):
+    try:
+        dict["continent"] = content.find("h3", string="Continents").parent.find("div").text
+    except:
+        dict["continent"] = None
+            
+    try:
+        regions = re.split(
+                    ": |, ", content.find("h3", string="Regions").parent.find("div").text
+                )   
+    except:
+        regions = []
+    return continent,regions
     
 
 def analyseHabitatAnimal(dict, content):
@@ -104,8 +109,11 @@ def getFenceSpec(content):
     
             
 
-for i in range(50,100):
-    analyseAnimal(animal_list[i])
+for a in animal_list:
+    analyseAnimal(a)
 
 
 #print(json.dumps(dict, indent=4))
+
+with open("data.json", "w") as outfile:
+    outfile.write(json.dumps(dict, indent=4))
